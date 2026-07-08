@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Laboratorio Base IaC - Deploy di un Web Server con Security Group'
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3.micro
+      - t3.small
+    Description: Seleziona la dimensione dell'istanza EC2.
+
+  KeyNameParameter:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Seleziona il nome della Key Pair esistente per l'accesso SSH.
+
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64'
+
+Resources:
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permette traffico HTTP (80) e SSH (22)
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      KeyName: !Ref KeyNameParameter
+      ImageId: !Ref LatestAmiId
+      SecurityGroups:
+        - !Ref WebServerSecurityGroup
+      Tags:
+        - Key: Name
+          Value: WebServer-Target-Lab
+
+Outputs:
+  InstanceId:
+    Description: ID dell'istanza EC2 appena creata
+    Value: !Ref WebServerInstance
+
+  PublicIP:
+    Description: IP Pubblico del Web Server per la connessione
+    Value: !GetAtt WebServerInstance.PublicIp

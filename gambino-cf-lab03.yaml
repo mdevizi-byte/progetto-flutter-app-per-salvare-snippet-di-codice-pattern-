@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Challenge 03 - Rete Custom, Mappature e Logica Condizionale senza tag di rete problematici"
+
+Parameters:
+  Ambiente:
+    Type: String
+    Default: Sviluppo
+    AllowedValues:
+      - Sviluppo
+      - Produzione
+    Description: "Seleziona l'ambiente. Se scegli Produzione verra creato anche un Bucket S3."
+
+Mappings:
+  RegionMap:
+    eu-north-1:
+      AMI: "ami-00133da7758080148"  # Amazon Linux 2023 a Stoccolma
+    eu-west-1:
+      AMI: "ami-0694d931cee176e7d"  # Amazon Linux 2023 in Irlanda
+
+Conditions:
+  IsProduction: !Equals [ !Ref Ambiente, "Produzione" ]
+
+Resources:
+  # --- INFRASTRUTTURA DI RETE (Senza alcuna proprieta Tags) ---
+  MiaVPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  MiaSubnetPubblica:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref MiaVPC
+      CidrBlock: "10.0.1.0/24"
+      MapPublicIpOnLaunch: true
+
+  MioInternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+
+  VPCGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref MiaVPC
+      InternetGatewayId: !Ref MioInternetGateway
+
+  MiaRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref MiaVPC
+
+  MiaRouteEsterna:
+    Type: "AWS::EC2::Route"
+    DependsOn: "VPCGatewayAttachment"
+    Properties:
+      RouteTableId: !Ref MiaRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref MioInternetGateway
+
+  SubnetRouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref MiaSubnetPubblica
+      RouteTableId: !Ref MiaRouteTable
+
+  # --- RISORSE COMPUTAZIONALI E STORAGE ---
+  IstanzaEC2Custom:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !FindInMap [ RegionMap, !Ref "AWS::Region", AMI ]
+      InstanceType: "t3.micro"
+      SubnetId: !Ref MiaSubnetPubblica
+      Tags:
+        - Key: Name
+          Value: !Sub "EC2-${Ambiente}"
+
+  BucketLogProduzione:
+    Type: "AWS::S3::Bucket"
+    Condition: "IsProduction"
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: "Ambiente"
+          Value: !Ref Ambiente
+
+Outputs:
+  PublicIP:
+    Description: "IP Pubblico dell'istanza EC2 creata"
+    Value: !GetAtt IstanzaEC2Custom.PublicIp
+
+  VpcID:
+    Description: "ID della VPC personalizzata creata"
+    Value: !Ref MiaVPC
