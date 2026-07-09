@@ -17,7 +17,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      // Definiamo il percorso iniziale '/' come la schermata di login
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginScreen(),
+      },
     );
   }
 }
