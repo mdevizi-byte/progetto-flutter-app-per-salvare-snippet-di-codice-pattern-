@@ -40,11 +40,36 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                  child: const Text('Accedi', style: TextStyle(fontSize: 16)),
+                
+                // --- MODIFICA DEL PULSANTE ACCEDI ---
+                Center(
+                  child: SizedBox(
+                    width: 160, // Larghezza contenuta, ideale per un utente medio
+                    height: 48, // Altezza standard ma ben visibile e cliccabile
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Inserisci qui la logica di login in futuro
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Sfondo blu
+                        foregroundColor: Colors.white, // Testo bianco
+                        elevation: 2, // Una leggera ombra per farlo risaltare
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8), // Bordi leggermente arrotondati
+                        ),
+                      ),
+                      child: const Text(
+                        'Accedi',
+                        style: TextStyle(
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold, // Testo in grassetto per massima leggibilità
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+                // -------------------------------------
+
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
