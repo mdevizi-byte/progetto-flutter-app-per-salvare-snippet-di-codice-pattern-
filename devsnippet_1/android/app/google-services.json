@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "936523733133",
+    "project_id": "devsnippet-app",
+    "storage_bucket": "devsnippet-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936523733133:android:17708e4d5620937cc3eac4",
+        "android_client_info": {
+          "package_name": "com.example.devsnippet_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "936523733133-6nttksj506krfg9o1b13vo04hlbrkvvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-cXk9cU8sWvXfaWYFOfMR4Wh8tQ9KcCc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "936523733133-6nttksj506krfg9o1b13vo04hlbrkvvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
