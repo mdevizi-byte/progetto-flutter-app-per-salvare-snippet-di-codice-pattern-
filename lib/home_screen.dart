@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'providers/snippet_provider.dart';
 import 'models/snippet.dart' as model; // Usa l'alias per puntare al tuo modello
 import 'services/auth_service.dart';
@@ -25,10 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Ottieni l'ID dell'utente loggato e avvia l'ascolto dei dati in tempo reale
     final userId = AuthService().currentUser?.uid ?? '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SnippetProvider>(
-        context,
-        listen: false,
-      ).listenToSnippets(userId);
+      SnippetProvider.instance.listenToSnippets(userId);
     });
   }
 
@@ -139,10 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
 
                         // Inviamo a Cloud Firestore tramite il provider
-                        await Provider.of<SnippetProvider>(
-                          context,
-                          listen: false,
-                        ).addSnippet(nuovoSnippet);
+                        await SnippetProvider.instance.addSnippet(nuovoSnippet);
 
                         _titleController.clear();
                         _codeController.clear();
@@ -169,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     // Leggiamo la lista degli snippet aggiornata in tempo reale dal tuo provider
-    final snippetProvider = Provider.of<SnippetProvider>(context);
+    final snippetProvider = SnippetProvider.instance;
     final realSnippets = snippetProvider.snippets;
 
     return Scaffold(
