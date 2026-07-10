@@ -1,0 +1,45 @@
+{
+    // Usare IntelliSense per informazioni sui possibili attributi.
+    // Al passaggio del mouse vengono visualizzate le descrizioni degli attributi esistenti.
+    // Per altre informazioni, visitare: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "devsnippet app(repo)",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "devsnippet app(repo) (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "devsnippet app(repo) (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "devsnippet_1",
+            "cwd": "devsnippet_1",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "devsnippet_1 (profile mode)",
+            "cwd": "devsnippet_1",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "devsnippet_1 (release mode)",
+            "cwd": "devsnippet_1",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
