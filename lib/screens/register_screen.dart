@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'services/auth_service.dart';
+import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -65,31 +65,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : () async {
-                    setState(() { _isLoading = true; });
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          setState(() {
+                            _isLoading = true;
+                          });
 
-                    final userCredential = await AuthService().signUpWithEmail(
-                      _emailController.text.trim(),
-                      _passwordController.text.trim(),
-                    );
+                          final userCredential = await AuthService()
+                              .signUpWithEmail(
+                                _emailController.text.trim(),
+                                _passwordController.text.trim(),
+                              );
 
-                    setState(() { _isLoading = false; });
+                          setState(() {
+                            _isLoading = false;
+                          });
 
-                    if (userCredential != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Registrazione completata! Effettua il login.')),
-                      );
-                      Navigator.pop(context); // Torna alla schermata di login
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Errore durante la registrazione.')),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                  child: _isLoading 
-                    ? const CircularProgressIndicator()
-                    : const Text('Registrati', style: TextStyle(fontSize: 16)),
+                          if (userCredential != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Registrazione completata! Effettua il login.',
+                                ),
+                              ),
+                            );
+                            Navigator.pop(
+                              context,
+                            ); // Torna alla schermata di login
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Errore durante la registrazione.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text(
+                          'Registrati',
+                          style: TextStyle(fontSize: 16),
+                        ),
                 ),
               ],
             ),
