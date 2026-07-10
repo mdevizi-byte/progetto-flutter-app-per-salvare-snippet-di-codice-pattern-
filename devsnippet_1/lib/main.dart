@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'firebase_options.dart'; // Generato automaticamente da flutterfire configure
+import 'firebase_options.dart';
 import 'providers/snippet_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Inizializza Firebase all'avvio
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
