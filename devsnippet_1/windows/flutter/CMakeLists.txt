@@ -4,7 +4,9 @@ cmake_minimum_required(VERSION 3.14)
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ephemeral")
 
 # Configuration provided via flutter tool.
-include(${EPHEMERAL_DIR}/generated_config.cmake)
+if (EXISTS "${EPHEMERAL_DIR}/generated_config.cmake")
+  include(${EPHEMERAL_DIR}/generated_config.cmake)
+endif()
 
 # TODO: Move the rest of this into files in ephemeral. See
 # https://github.com/flutter/flutter/issues/57146.
@@ -19,7 +21,11 @@ endif()
 set(FLUTTER_LIBRARY "${EPHEMERAL_DIR}/flutter_windows.dll")
 
 # Published to parent scope for install step.
-set(FLUTTER_LIBRARY ${FLUTTER_LIBRARY} PARENT_SCOPE)
+if(DEFINED CMAKE_PARENT_LIST_FILE)
+  # Only set in parent scope when a parent CMake list exists to avoid
+  # "Cannot set ... current scope has no parent" warnings.
+  set(FLUTTER_LIBRARY ${FLUTTER_LIBRARY} PARENT_SCOPE)
+endif()
 set(FLUTTER_ICU_DATA_FILE "${EPHEMERAL_DIR}/icudtl.dat" PARENT_SCOPE)
 set(PROJECT_BUILD_DIR "${PROJECT_DIR}/build/" PARENT_SCOPE)
 set(AOT_LIBRARY "${PROJECT_DIR}/build/windows/app.so" PARENT_SCOPE)
