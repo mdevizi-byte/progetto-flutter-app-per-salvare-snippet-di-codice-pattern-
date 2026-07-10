@@ -58,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.lock),
                   ),
+<<<<<<< HEAD
                 ),
                 const SizedBox(height: 24),
                 Center(
@@ -93,6 +94,87 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+=======
+                  const SizedBox(height: 16),
+                  
+                  // CAMPO PASSWORD CON ACCUMULO DI TUTTI GLI ERRORI
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _isPasswordObscured,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordObscured ? Icons.visibility_off : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordObscured = !_isPasswordObscured;
+                          });
+                        },
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Per favore, inserisci la password';
+                      }
+
+                      // Creiamo una lista vuota per accumulare tutti gli errori riscontrati
+                      List<String> errors = [];
+                      
+                      // 1. Controllo Lunghezza
+                      if (value.length < 6) {
+                        errors.add('• Minimo 6 caratteri');
+                      }
+                      
+                      // 2. Controllo Lettera Maiuscola
+                      if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                        errors.add('• Almeno una lettera maiuscola');
+                      }
+                      
+                      // 3. Controllo 2 Numeri
+                      int countNumbers = RegExp(r'\d').allMatches(value).length;
+                      if (countNumbers < 2) {
+                        errors.add('• Almeno 2 numeri');
+                      }
+                      
+                      // 4. Controllo Carattere Speciale
+                      if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(value)) {
+                        errors.add('• Almeno un carattere speciale (es. @, #, !, ?)');
+                      }
+                      
+                      // Se la lista NON è vuota, uniamo tutti gli errori separandoli con un a capo
+                      if (errors.isNotEmpty) {
+                        return 'La password deve contenere:\n' + errors.join('\n');
+                      }
+                      
+                      return null; // Zero errori, la password è valida!
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  Center(
+                    child: SizedBox(
+                      width: 160,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Text('Accedi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+>>>>>>> d1c963d28d596d02080ea4feeb865a65ff66bb9e
                       ),
                       child: _isLoading 
                         ? const CircularProgressIndicator(color: Colors.white)
