@@ -1,26 +1,8 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
-import 'home_screen.dart'; // Assicurati che punti al file della HomeScreen di Angelo
-import 'services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 32),
                 TextField(
-                  controller: _emailController, // Collegato
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -51,14 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: _passwordController, // Collegato
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.lock),
                   ),
-<<<<<<< HEAD
                 ),
                 const SizedBox(height: 24),
                 Center(
@@ -66,26 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 160,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : () async {
-                        setState(() { _isLoading = true; });
-
-                        final credential = await AuthService().signInWithEmail(
-                          _emailController.text.trim(),
-                          _passwordController.text.trim(),
-                        );
-
-                        setState(() { _isLoading = false; });
-
-                        if (credential != null) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Credenziali errate o utente non trovato.')),
-                          );
-                        }
+                      onPressed: () {
+                        // Inserisci qui la logica di login in futuro
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -94,91 +55,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-=======
-                  const SizedBox(height: 16),
-                  
-                  // CAMPO PASSWORD CON ACCUMULO DI TUTTI GLI ERRORI
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _isPasswordObscured,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordObscured ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isPasswordObscured = !_isPasswordObscured;
-                          });
-                        },
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Per favore, inserisci la password';
-                      }
-
-                      // Creiamo una lista vuota per accumulare tutti gli errori riscontrati
-                      List<String> errors = [];
-                      
-                      // 1. Controllo Lunghezza
-                      if (value.length < 6) {
-                        errors.add('• Minimo 6 caratteri');
-                      }
-                      
-                      // 2. Controllo Lettera Maiuscola
-                      if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                        errors.add('• Almeno una lettera maiuscola');
-                      }
-                      
-                      // 3. Controllo 2 Numeri
-                      int countNumbers = RegExp(r'\d').allMatches(value).length;
-                      if (countNumbers < 2) {
-                        errors.add('• Almeno 2 numeri');
-                      }
-                      
-                      // 4. Controllo Carattere Speciale
-                      if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(value)) {
-                        errors.add('• Almeno un carattere speciale (es. @, #, !, ?)');
-                      }
-                      
-                      // Se la lista NON è vuota, uniamo tutti gli errori separandoli con un a capo
-                      if (errors.isNotEmpty) {
-                        return 'La password deve contenere:\n' + errors.join('\n');
-                      }
-                      
-                      return null; // Zero errori, la password è valida!
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  Center(
-                    child: SizedBox(
-                      width: 160,
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HomeScreen()),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      child: const Text(
+                        'Accedi',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: const Text('Accedi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
->>>>>>> d1c963d28d596d02080ea4feeb865a65ff66bb9e
                       ),
-                      child: _isLoading 
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Accedi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ),
@@ -187,7 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterScreen(),
+                      ),
                     );
                   },
                   child: const Text('Non hai un account? Registrati'),
