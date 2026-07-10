@@ -57,7 +57,6 @@ class DefaultFirebaseOptions {
     projectId: 'devsnippet-app',
     storageBucket: 'devsnippet-app.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBegi1-i6neI3Ht2bcWAsL7kGNT1HdvFsk',
     appId: '1:936523733133:ios:181cc5657a447078c3eac4',
@@ -67,7 +66,6 @@ class DefaultFirebaseOptions {
     iosClientId: '936523733133-95m98c6f9fj1h1ta04soar4kba8n3g77.apps.googleusercontent.com',
     iosBundleId: 'com.example.devsnippet1',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBegi1-i6neI3Ht2bcWAsL7kGNT1HdvFsk',
     appId: '1:936523733133:ios:181cc5657a447078c3eac4',
