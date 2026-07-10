@@ -68,22 +68,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // CAMPO PASSWORD CON OCCHIETTO PER MOSTRARE/NASCONDERE
+                  // CAMPO PASSWORD CON ACCUMULO DI TUTTI GLI ERRORI
                   TextFormField(
                     controller: _passwordController,
-                    obscureText: _isPasswordObscured, // Diventa dinamico in base alla variabile
+                    obscureText: _isPasswordObscured,
                     decoration: InputDecoration(
                       labelText: 'Password',
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
-                      // AGGIUNTA DELL'OCCHIETTO IN FONDO AL CAMPO (Suffix Icon)
                       suffixIcon: IconButton(
                         icon: Icon(
-                          // Se la password è nascosta mostra l'occhio sbarrato, altrimenti l'occhio normale
                           _isPasswordObscured ? Icons.visibility_off : Icons.visibility,
                         ),
                         onPressed: () {
-                          // setState dice a Flutter di ridisegnare lo schermo col nuovo stato dell'occhio
                           setState(() {
                             _isPasswordObscured = !_isPasswordObscured;
                           });
@@ -94,20 +91,37 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Per favore, inserisci la password';
                       }
+
+                      // Creiamo una lista vuota per accumulare tutti gli errori riscontrati
+                      List<String> errors = [];
+                      
+                      // 1. Controllo Lunghezza
                       if (value.length < 6) {
-                        return 'La password deve essere di almeno 6 caratteri';
+                        errors.add('• Minimo 6 caratteri');
                       }
+                      
+                      // 2. Controllo Lettera Maiuscola
                       if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                        return 'La password deve contenere almeno una letter maiuscola';
+                        errors.add('• Almeno una lettera maiuscola');
                       }
+                      
+                      // 3. Controllo 2 Numeri
                       int countNumbers = RegExp(r'\d').allMatches(value).length;
                       if (countNumbers < 2) {
-                        return 'La password deve contenere almeno 2 numeri';
+                        errors.add('• Almeno 2 numeri');
                       }
+                      
+                      // 4. Controllo Carattere Speciale
                       if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(value)) {
-                        return 'La password deve contenere almeno un carattere speciale (es. @, #, !, ?)';
+                        errors.add('• Almeno un carattere speciale (es. @, #, !, ?)');
                       }
-                      return null;
+                      
+                      // Se la lista NON è vuota, uniamo tutti gli errori separandoli con un a capo
+                      if (errors.isNotEmpty) {
+                        return 'La password deve contenere:\n' + errors.join('\n');
+                      }
+                      
+                      return null; // Zero errori, la password è valida!
                     },
                   ),
                   const SizedBox(height: 24),
