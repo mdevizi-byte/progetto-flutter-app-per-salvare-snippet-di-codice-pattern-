@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart'; // Importa il tuo servizio di autenticazione
 import 'register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +41,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 TextField(
+                  controller: _emailController, // Collegato
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -32,6 +50,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 TextField(
+                  controller: _passwordController, // Collegato
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
@@ -45,9 +64,34 @@ class LoginScreen extends StatelessWidget {
                     width: 160,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Inserisci qui la logica di login in futuro
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              setState(() {
+                                _isLoading = true;
+                              });
+
+                              // Esegue il login su Firebase tramite il tuo back-end
+                              final user = await AuthService().signInWithEmail(
+                                _emailController.text.trim(),
+                                _passwordController.text.trim(),
+                              );
+
+                              setState(() {
+                                _isLoading = false;
+                              });
+
+                              if (user != null) {
+                                // Se il login ha successo, manda l'utente alla Home
+                                Navigator.pushReplacementNamed(context, '/home');
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Credenziali errate o errore di login.'),
+                                  ),
+                                );
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -56,25 +100,24 @@ class LoginScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Accedi',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Text(
+                              'Accedi',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
-                      ),
-                    );
+                    // Sostituito con la rotta nominata per coerenza
+                    Navigator.pushNamed(context, '/register');
                   },
                   child: const Text('Non hai un account? Registrati'),
                 ),
