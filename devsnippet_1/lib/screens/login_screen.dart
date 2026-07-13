@@ -9,15 +9,29 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // auto-redirect if already authenticated
+    final user = AuthService().currentUser;
+    if (user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/home');
+      });
+    }
   }
 
   @override
@@ -39,22 +53,56 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Inserisci una email';
+                          final emailRegex =
+                              RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+                          if (!emailRegex.hasMatch(value))
+                            return 'Email non valida';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Inserisci la password';
+                          if (value.length < 6)
+                            return 'La password deve avere almeno 6 caratteri';
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -66,6 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _isLoading
                           ? null
                           : () async {
+                              if (!(_formKey.currentState?.validate() ?? false))
+                                return;
                               setState(() {
                                 _isLoading = true;
                               });
@@ -81,11 +131,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
 
                               if (user != null) {
-                                Navigator.pushReplacementNamed(context, '/home');
+                                Navigator.pushReplacementNamed(
+                                    context, '/home');
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Credenziali errate o errore di login.'),
+                                    content: Text(
+                                        'Credenziali errate o errore di login.'),
                                   ),
                                 );
                               }
@@ -102,21 +154,75 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
                             )
                           : const Text(
                               'Accedi',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  child: const Text('Non hai un account? Registrati'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: const Text('Non hai un account? Registrati'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final email = _emailController.text.trim();
+                        if (email.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Inserisci la tua email per resettare la password')),
+                          );
+                          return;
+                        }
+                        await AuthService().sendPasswordReset(email);
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Email di reset inviata (se esistente).')),
+                        );
+                      },
+                      child: const Text('Password dimenticata?'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      setState(() => _isLoading = true);
+                      final user = await AuthService().signInWithGoogle();
+                      setState(() => _isLoading = false);
+                      if (user != null) {
+                        if (!mounted) return;
+                        Navigator.pushReplacementNamed(context, '/home');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Login con Google annullato o fallito.')),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.login),
+                    label: const Text('Accedi con Google'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -10,10 +10,15 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, st) {
+    // Se DefaultFirebaseOptions non è configurato (file segnaposto),
+    // non blocchiamo l'app in fase di sviluppo — logghiamo e proseguiamo.
+    debugPrint('Firebase init warning: $e\n$st');
+  }
 
   runApp(
     MultiProvider(
