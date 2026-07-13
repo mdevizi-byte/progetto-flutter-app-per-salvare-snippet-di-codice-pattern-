@@ -67,12 +67,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icon(Icons.email),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Inserisci una email';
+                          }
                           final emailRegex =
                               RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-                          if (!emailRegex.hasMatch(value))
+                          if (!emailRegex.hasMatch(value)) {
                             return 'Email non valida';
+                          }
                           return null;
                         },
                       ),
@@ -95,10 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Inserisci la password';
-                          if (value.length < 6)
+                          }
+                          if (value.length < 6) {
                             return 'La password deve avere almeno 6 caratteri';
+                          }
                           return null;
                         },
                       ),
@@ -114,8 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _isLoading
                           ? null
                           : () async {
-                              if (!(_formKey.currentState?.validate() ?? false))
+                              if (!(_formKey.currentState?.validate() ?? false)) {
                                 return;
+                              }
                               setState(() {
                                 _isLoading = true;
                               });
