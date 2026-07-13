@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:devsnippet_app/screens/register_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -39,12 +39,11 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-
+                
                 // --- MODIFICA DEL PULSANTE ACCEDI ---
                 Center(
                   child: SizedBox(
-                    width:
-                        160, // Larghezza contenuta, ideale per un utente medio
+                    width: 160, // Larghezza contenuta, ideale per un utente medio
                     height: 48, // Altezza standard ma ben visibile e cliccabile
                     child: ElevatedButton(
                       onPressed: () {
@@ -55,32 +54,27 @@ class LoginScreen extends StatelessWidget {
                         foregroundColor: Colors.white, // Testo bianco
                         elevation: 2, // Una leggera ombra per farlo risaltare
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            8,
-                          ), // Bordi leggermente arrotondati
+                          borderRadius: BorderRadius.circular(8), // Bordi leggermente arrotondati
                         ),
                       ),
                       child: const Text(
                         'Accedi',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight
-                              .bold, // Testo in grassetto per massima leggibilità
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold, // Testo in grassetto per massima leggibilità
                         ),
                       ),
                     ),
                   ),
                 ),
-
                 // -------------------------------------
+
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
                     );
                   },
                   child: const Text('Non hai un account? Registrati'),

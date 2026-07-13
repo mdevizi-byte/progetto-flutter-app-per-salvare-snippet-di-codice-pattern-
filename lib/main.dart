@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'providers/snippet_provider.dart';
 import 'screens/login_screen.dart';
 
 void main() async {
@@ -8,7 +10,12 @@ void main() async {
   // Inizializza Firebase all'avvio
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => SnippetProvider())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
