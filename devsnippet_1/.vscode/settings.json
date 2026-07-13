@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/App flutter/devsnippet app(repo)/devsnippet_1/windows/flutter"
+    "cmake.sourceDirectory": "C:/App flutter/devsnippet app(repo)/devsnippet_1/windows/flutter",
+    "java.compile.nullAnalysis.mode": "automatic"
 }
