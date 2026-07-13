@@ -1,14 +1,19 @@
 import '../models/snippet.dart';
-import 'package:flutter/material.dart'; // Assicurati che ci sia questo import
+import 'package:flutter/material.dart';
+// Eventuali altri import sotto...
 
 class SnippetProvider with ChangeNotifier {
-  // ... il resto del codice del tuo compagno o tuo rimane invariato
-}
-  static final SnippetProvider instance = SnippetProvider._internal();
+  // <--- LA PARENTESI GRAFFA DEVE APRIRSI SUBITO QUI!
 
-  factory SnippetProvider() => instance;
-
+  // Da qui in poi lascia il codice originale del file così com'era:
+  static final SnippetProvider _instance = SnippetProvider._internal();
+  
+  factory SnippetProvider() => _instance;
+  
   SnippetProvider._internal();
+
+  // ... tutto il resto del vostro codice dei modelli e delle funzioni
+}
 
   final List<Snippet> _snippets = [];
 
@@ -34,4 +39,4 @@ class SnippetProvider with ChangeNotifier {
   Future<void> deleteSnippet(String id) async {
     _snippets.removeWhere((snippet) => snippet.id == id);
   }
-}
+
