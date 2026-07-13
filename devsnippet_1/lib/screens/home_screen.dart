@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/snippet_provider.dart';
 import '../models/snippet.dart' as model;
 import '../services/auth_service.dart';
@@ -13,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _addFormKey = GlobalKey<FormState>();
+  StreamSubscription<User?>? _authSub;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
@@ -28,12 +32,26 @@ class _HomeScreenState extends State<HomeScreen> {
         listen: false,
       ).listenToSnippets(userId);
     });
+    // Se non c'è ancora un utente (ad esempio la pagina è caricata
+    // immediatamente dopo l'inizializzazione), ascoltiamo i cambiamenti
+    // dello stato di autenticazione e avviamo l'ascolto degli snippet
+    // appena l'utente diventa disponibile.
+    if (userId.isEmpty) {
+      _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+        final uid = user?.uid ?? '';
+        if (uid.isNotEmpty) {
+          Provider.of<SnippetProvider>(context, listen: false)
+              .listenToSnippets(uid);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _codeController.dispose();
+    _authSub?.cancel();
     super.dispose();
   }
 
@@ -169,7 +187,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('La Mia Biblioteca'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('La Mia Biblioteca'),
+            Text(
+              'UID: ${AuthService().currentUser?.uid ?? 'non autenticato'}',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [

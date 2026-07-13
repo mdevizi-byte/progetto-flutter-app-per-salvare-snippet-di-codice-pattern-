@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/snippet.dart';
@@ -5,22 +7,41 @@ import '../models/snippet.dart';
 class SnippetProvider with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   List<Snippet> _snippets = [];
+  StreamSubscription<QuerySnapshot>? _sub;
 
   List<Snippet> get snippets => _snippets;
 
   // Ascolta gli snippet in tempo reale filtrati per l'utente loggato
   void listenToSnippets(String userId) {
-    if (userId.isEmpty) return;
+    // Cancella eventuale sottoscrizione precedente
+    _sub?.cancel();
 
-    _db
-        .collection('snippets')
-        .where('userId', isEqualTo: userId)
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((snapshot) {
-      _snippets = snapshot.docs.map((doc) => Snippet.fromFirestore(doc)).toList();
-      notifyListeners(); // Notifica la UI per aggiornare la grafica
-    });
+    if (userId.isEmpty) {
+      debugPrint(
+          'listenToSnippets: userId vuoto, nessuna sottoscrizione creata');
+      _snippets = [];
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final query = _db
+          .collection('snippets')
+          .where('userId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true);
+
+      _sub = query.snapshots().listen((snapshot) {
+        _snippets =
+            snapshot.docs.map((doc) => Snippet.fromFirestore(doc)).toList();
+        debugPrint(
+            'listenToSnippets: ricevuti ${_snippets.length} snippet per user $userId');
+        notifyListeners();
+      }, onError: (err) {
+        debugPrint('listenToSnippets error: $err');
+      });
+    } catch (e) {
+      debugPrint('listenToSnippets exception: $e');
+    }
   }
 
   // Aggiunge un nuovo snippet su Firestore
@@ -43,5 +64,11 @@ class SnippetProvider with ChangeNotifier {
     } catch (e) {
       debugPrint("Errore durante la cancellazione dello snippet: $e");
     }
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 }
