@@ -1,39 +1,25 @@
-import 'package:firebase_auth/firebase_auth.dart';
+class MockUser {
+  final String uid;
+
+  const MockUser(this.uid);
+}
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  MockUser? _currentUser;
 
-  // Ottieni l'utente attualmente loggato (o null se disconnesso)
-  User? get currentUser => _auth.currentUser;
+  MockUser? get currentUser => _currentUser;
 
-  // Registrazione con Email e Password
-  Future<UserCredential?> signUpWithEmail(String email, String password) async {
-    try {
-      return await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      print("Errore Registrazione: $e");
-      return null;
-    }
+  Future<Object?> signUpWithEmail(String email, String password) async {
+    _currentUser = MockUser(email.isNotEmpty ? email : 'local-user');
+    return Object();
   }
 
-  // Login con Email e Password
-  Future<UserCredential?> signInWithEmail(String email, String password) async {
-    try {
-      return await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } catch (e) {
-      print("Errore Login: $e");
-      return null;
-    }
+  Future<Object?> signInWithEmail(String email, String password) async {
+    _currentUser = MockUser(email.isNotEmpty ? email : 'local-user');
+    return Object();
   }
 
-  // Logout
   Future<void> signOut() async {
-    await _auth.signOut();
+    _currentUser = null;
   }
 }
