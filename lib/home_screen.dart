@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'providers/snippet_provider.dart';
-import 'models/snippet.dart' as model; // Usa l'alias per puntare al tuo modello
-import 'services/auth_service.dart';
+import '../models/snippet.dart';
+import '../services/firebase_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,22 +13,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final _addFormKey = GlobalKey<FormState>();
 
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _codeController =
-      TextEditingController(); // Gestirà il codice/contenuto
-  String _selectedLanguage = 'Codice'; // Diventa il linguaggio/tipo di risorsa
-
-  @override
-  void initState() {
-    super.initState();
-    // Ottieni l'ID dell'utente loggato e avvia l'ascolto dei dati in tempo reale
-    final userId = AuthService().currentUser?.uid ?? '';
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SnippetProvider>(
-        context,
-        listen: false,
-      ).listenToSnippets(userId);
-    });
-  }
+  final TextEditingController _codeController = TextEditingController(); 
+  String _selectedLanguage = 'Testo'; 
 
   @override
   void dispose() {
@@ -43,16 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 24,
-            left: 24,
-            right: 24,
+            top: 24, left: 24, right: 24,
           ),
           child: SingleChildScrollView(
             child: Form(
@@ -61,178 +41,127 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Aggiungi alla Biblioteca',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
+                  const Text('Aggiungi alla Biblioteca', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                   const SizedBox(height: 20),
-
+                  
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Titolo dello snippet',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Il titolo non può essere vuoto';
-                      return null;
-                    },
+                    decoration: const InputDecoration(labelText: 'Tìtolo dello snippet o file', border: OutlineInputBorder()),
+                    validator: (value) => value == null || value.trim().isEmpty ? 'Il titolo non può essere vuoto' : null,
                   ),
                   const SizedBox(height: 16),
-
+                  
                   TextFormField(
-                    controller: _codeController,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Codice o contenuto dello snippet',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty)
-                        return 'Il codice non può essere vuoto';
-                      return null;
-                    },
+                    controller: _codeController, 
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: 'Contenuto o codice', border: OutlineInputBorder()),
+                    validator: (value) => value == null || value.trim().isEmpty ? 'Il contenuto non può essere vuoto' : null,
                   ),
                   const SizedBox(height: 16),
-
+                  
                   DropdownButtonFormField<String>(
-                    initialValue: _selectedLanguage,
-                    decoration: const InputDecoration(
-                      labelText: 'Linguaggio / Tipo',
-                      border: OutlineInputBorder(),
-                    ),
-                    items:
-                        [
-                              'Dart',
-                              'Java',
-                              'Python',
-                              'JavaScript',
-                              'HTML/CSS',
-                              'Codice',
-                            ]
-                            .map(
-                              (lang) => DropdownMenuItem(
-                                value: lang,
-                                child: Text(lang),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (value) {
-                      if (value != null) _selectedLanguage = value;
-                    },
+                    value: _selectedLanguage, 
+                    decoration: const InputDecoration(labelText: 'Tipo di Risorsa / Lingua', border: OutlineInputBorder()),
+                    items: ['Testo', 'Codice', 'File PDF', 'Link'].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+                    onChanged: (value) { if (value != null) _selectedLanguage = value; },
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () async {
                       if (_addFormKey.currentState!.validate()) {
-                        final userId = AuthService().currentUser?.uid ?? '';
-
-                        // Creiamo lo snippet reale per Firebase
-                        final nuovoSnippet = model.Snippet(
+                        final nuovoSnippet = Snippet(
                           title: _titleController.text.trim(),
                           code: _codeController.text.trim(),
                           language: _selectedLanguage,
-                          userId: userId,
+                          userId: 'utente_corrente_id', 
                           timestamp: DateTime.now(),
                         );
 
-                        // Inviamo a Cloud Firestore tramite il provider
-                        await Provider.of<SnippetProvider>(
-                          context,
-                          listen: false,
-                        ).addSnippet(nuovoSnippet);
+                        await FirebaseService.addSnippet(nuovoSnippet);
 
                         _titleController.clear();
                         _codeController.clear();
                         Navigator.pop(context);
                       }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Salva su Firebase'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 14)),
+                    child: const Text('Salva nel Cloud'),
                   ),
                   const SizedBox(height: 24),
                 ],
               ),
-            ),
+                ),
           ),
         );
       },
     );
   }
 
+  IconData _getIconForType(String language) {
+    switch (language) {
+      case 'Codice': return Icons.code;
+      case 'File PDF': return Icons.picture_as_pdf;
+      case 'Link': return Icons.link;
+      default: return Icons.description;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Leggiamo la lista degli snippet aggiornata in tempo reale dal tuo provider
-    final snippetProvider = Provider.of<SnippetProvider>(context);
-    final realSnippets = snippetProvider.snippets;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('La Mia Biblioteca'),
+        title: const Text('La Mia Biblioteca Cloud'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await AuthService().signOut();
-              Navigator.pushReplacementNamed(context, '/');
-            },
-          ),
+            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+          )
         ],
       ),
-      body: realSnippets.isEmpty
-          ? const Center(
-              child: Text(
-                'La tua biblioteca è vuota.\nAggiungi qualcosa con il tasto +',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: realSnippets.length,
-              itemBuilder: (context, index) {
-                final item = realSnippets[index];
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.blueGrey,
-                      child: Icon(Icons.code, color: Colors.blue),
-                    ),
-                    title: Text(
-                      item.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${item.language}\n${item.code}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () async {
-                        if (item.id != null) {
-                          // Cancella direttamente da Firestore usando la tua funzione
-                          await snippetProvider.deleteSnippet(item.id!);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${item.title} rimosso.')),
-                          );
-                        }
-                      },
-                    ),
+      body: StreamBuilder<List<Snippet>>(
+        stream: FirebaseService.getSnippetsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return const Center(child: Text('Errore di connessione al Cloud.'));
+          }
+
+          final cloudSnippets = snapshot.data ?? [];
+
+          if (cloudSnippets.isEmpty) {
+            return const Center(child: Text('Nessun elemento nel Cloud.\nAggiungi qualcosa con il tasto +', textAlign: TextAlign.center));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: cloudSnippets.length,
+            itemBuilder: (context, index) {
+              final item = cloudSnippets[index];
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: CircleAvatar(backgroundColor: Colors.blue.shade50, child: Icon(_getIconForType(item.language), color: Colors.blue)),
+                  title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(item.code), 
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () async {
+                      if (item.id != null) {
+                        await FirebaseService.deleteSnippet(item.id!);
+                      }
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddSnippetForm(context),
         backgroundColor: Colors.blue,
