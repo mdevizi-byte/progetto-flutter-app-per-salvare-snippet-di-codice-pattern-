@@ -10,17 +10,20 @@ import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  WidgetsFlutterBinding.ensureInitialized(); //[cite: 6]
+  
+  // Modifica questa riga inserendo il cast esplicito alla fine:
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform as FirebaseOptions,
+  );
 
   runApp(
-    MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => SnippetProvider())],
-      child: const MyApp(),
+    MultiProvider( //[cite: 6]
+      providers: [ChangeNotifierProvider(create: (_) => SnippetProvider())], //[cite: 6]
+      child: const MyApp(), //[cite: 6]
     ),
   );
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
