@@ -75,8 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty)
+                      if (value == null || value.trim().isEmpty) {
                         return 'Il titolo non può essere vuoto';
+                      }
                       return null;
                     },
                   ),
@@ -90,8 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty)
+                      if (value == null || value.trim().isEmpty) {
                         return 'Il codice non può essere vuoto';
+                      }
                       return null;
                     },
                   ),
