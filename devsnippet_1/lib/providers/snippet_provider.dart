@@ -62,21 +62,19 @@ class SnippetProvider with ChangeNotifier {
   }
 
   // Aggiunge un nuovo snippet su Firestore
-  Future<void> addSnippet(Snippet snippet) async {
-    try {
-      await _db.collection('snippets').add(snippet.toFirestore());
-    } catch (e) {
-      debugPrint("Errore durante l'aggiunta dello snippet: $e");
-    }
-  }
-
-  // Cancella uno snippet da Firestore
+  // Cancella uno snippet da Firestore usando l'ID del documento
   Future<void> deleteSnippet(String id) async {
     try {
-      await _db.collection('snippets').doc(id).delete();
+      await FirebaseFirestore.instance.collection('snippets').doc(id).delete();
+      // Opzionale: se hai una lista locale _snippets, puoi rimuoverlo anche da lì 
+      // per aggiornare la UI istantaneamente se non usi gli stream in tempo reale:
+      _snippets.removeWhere((element) => element.id == id);
+      notifyListeners(); 
     } catch (e) {
       debugPrint("Errore durante la cancellazione dello snippet: $e");
     }
   }
+
+  
 }
 
