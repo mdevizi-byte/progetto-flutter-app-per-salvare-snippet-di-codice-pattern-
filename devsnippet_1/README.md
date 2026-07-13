@@ -1,2 +1,3 @@
-# progetto flutter app per salvare snippet di codice(pattern)
+# devsnippet_app
 
+A new Flutter project.
