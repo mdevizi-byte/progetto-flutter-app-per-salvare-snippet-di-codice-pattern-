@@ -1,6 +1,9 @@
 import '../models/snippet.dart';
+import 'package:flutter/material.dart'; // Assicurati che ci sia questo import
 
-class SnippetProvider {
+class SnippetProvider with ChangeNotifier {
+  // ... il resto del codice del tuo compagno o tuo rimane invariato
+}
   static final SnippetProvider instance = SnippetProvider._internal();
 
   factory SnippetProvider() => instance;
