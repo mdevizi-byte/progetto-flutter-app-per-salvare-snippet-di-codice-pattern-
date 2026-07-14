@@ -22,6 +22,32 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _codeController = TextEditingController();
   String _selectedLanguage = 'Codice';
 
+  static const List<String> _monthNames = [
+    'gen',
+    'feb',
+    'mar',
+    'apr',
+    'mag',
+    'giu',
+    'lug',
+    'ago',
+    'set',
+    'ott',
+    'nov',
+    'dic',
+  ];
+
+  String _twoDigits(int value) => value.toString().padLeft(2, '0');
+
+  String _formatPublishedAt(DateTime timestamp) {
+    final day = _twoDigits(timestamp.day);
+    final month = _monthNames[timestamp.month - 1];
+    final year = timestamp.year;
+    final time =
+        '${_twoDigits(timestamp.hour)}:${_twoDigits(timestamp.minute)}';
+    return 'Pubblicato il $day $month $year, ore $time';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -227,32 +253,94 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Card(
                   elevation: 2,
                   margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.blueGrey,
-                      child: Icon(Icons.code, color: Colors.blue),
-                    ),
-                    title: Text(
-                      item.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${item.language}\n${item.code}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () async {
-                        if (item.id != null) {
-                          await snippetProvider.deleteSnippet(item.id!);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('${item.title} rimosso.')),
-                            );
-                          }
-                        }
-                      },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Colors.blueGrey,
+                              child: Icon(Icons.code, color: Colors.blue),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      Chip(
+                                        label: Text(item.language),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      Chip(
+                                        label: Text(
+                                            _formatPublishedAt(item.timestamp)),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                              ),
+                              onPressed: () async {
+                                if (item.id != null) {
+                                  await snippetProvider.deleteSnippet(item.id!);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('${item.title} rimosso.'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white12,
+                            ),
+                          ),
+                          child: Text(
+                            item.code,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
