@@ -118,7 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _isLoading
                           ? null
                           : () async {
-                              if (!(_formKey.currentState?.validate() ?? false)) {
+                              if (!(_formKey.currentState?.validate() ??
+                                  false)) {
                                 return;
                               }
                               setState(() {
@@ -191,8 +192,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                           return;
                         }
-                        await AuthService().sendPasswordReset(email);
+                        final error =
+                            await AuthService().sendPasswordReset(email);
                         if (!mounted) return;
+                        if (error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Reset non inviato: $error'),
+                            ),
+                          );
+                          return;
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text(
