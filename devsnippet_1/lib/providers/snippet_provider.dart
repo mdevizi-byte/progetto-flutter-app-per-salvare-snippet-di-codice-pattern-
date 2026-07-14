@@ -25,14 +25,16 @@ class SnippetProvider with ChangeNotifier {
     }
 
     try {
-      final query = _db
-          .collection('snippets')
-          .where('userId', isEqualTo: userId)
-          .orderBy('timestamp', descending: true);
+      final query = _db.collection('snippets').where(
+            'userId',
+            isEqualTo: userId,
+          );
 
       _sub = query.snapshots().listen((snapshot) {
-        _snippets =
+        final items =
             snapshot.docs.map((doc) => Snippet.fromFirestore(doc)).toList();
+        items.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        _snippets = items;
         debugPrint(
             'listenToSnippets: ricevuti ${_snippets.length} snippet per user $userId');
         notifyListeners();
