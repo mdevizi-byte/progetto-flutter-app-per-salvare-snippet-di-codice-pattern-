@@ -206,6 +206,122 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showEditSnippetForm(BuildContext context, model.Snippet snippet) {
+    final titleController = TextEditingController(text: snippet.title);
+    final codeController = TextEditingController(text: snippet.code);
+    String selectedLanguage = snippet.language;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+            top: 24,
+            left: 24,
+            right: 24,
+          ),
+          child: SingleChildScrollView(
+            child: Form(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Modifica snippet',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Titolo dello snippet',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: codeController,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Codice o contenuto dello snippet',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedLanguage,
+                    decoration: const InputDecoration(
+                      labelText: 'Linguaggio / Tipo',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      'Dart',
+                      'Java',
+                      'Python',
+                      'JavaScript',
+                      'HTML/CSS',
+                      'Codice',
+                    ]
+                        .map(
+                          (lang) => DropdownMenuItem(
+                            value: lang,
+                            child: Text(lang),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        selectedLanguage = value;
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final updatedSnippet = model.Snippet(
+                        id: snippet.id,
+                        title: titleController.text.trim(),
+                        code: codeController.text.trim(),
+                        language: selectedLanguage,
+                        userId: snippet.userId,
+                        timestamp: DateTime.now(),
+                      );
+
+                      await Provider.of<SnippetProvider>(
+                        context,
+                        listen: false,
+                      ).updateSnippet(updatedSnippet);
+
+                      if (context.mounted) {
+                        Navigator.pop(sheetContext);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('Aggiorna su Firebase'),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).whenComplete(() {
+      titleController.dispose();
+      codeController.dispose();
+    });
+  }
+
   void _showSnippetDetails(BuildContext context, model.Snippet snippet) {
     showDialog(
       context: context,
@@ -286,6 +402,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                          _showEditSnippetForm(context, snippet);
+                        },
+                        child: const Text('Modifica'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('Chiudi'),
+                      ),
+                    ],
                   ),
                 ],
               ),

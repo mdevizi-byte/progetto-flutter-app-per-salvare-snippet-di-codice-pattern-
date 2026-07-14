@@ -57,6 +57,18 @@ class SnippetProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateSnippet(Snippet snippet) async {
+    try {
+      if (snippet.id == null) return;
+      await _db
+          .collection('snippets')
+          .doc(snippet.id)
+          .update(snippet.toFirestore());
+    } catch (e) {
+      debugPrint("Errore durante l'aggiornamento dello snippet: $e");
+    }
+  }
+
   // Cancella uno snippet da Firestore usando l'ID del documento
   Future<void> deleteSnippet(String id) async {
     try {
