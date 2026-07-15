@@ -25,10 +25,10 @@ if(DEFINED CMAKE_PARENT_LIST_FILE)
   # Only set in parent scope when a parent CMake list exists to avoid
   # "Cannot set ... current scope has no parent" warnings.
   set(FLUTTER_LIBRARY ${FLUTTER_LIBRARY} PARENT_SCOPE)
+  set(FLUTTER_ICU_DATA_FILE "${EPHEMERAL_DIR}/icudtl.dat" PARENT_SCOPE)
+  set(PROJECT_BUILD_DIR "${PROJECT_DIR}/build/" PARENT_SCOPE)
+  set(AOT_LIBRARY "${PROJECT_DIR}/build/windows/app.so" PARENT_SCOPE)
 endif()
-set(FLUTTER_ICU_DATA_FILE "${EPHEMERAL_DIR}/icudtl.dat" PARENT_SCOPE)
-set(PROJECT_BUILD_DIR "${PROJECT_DIR}/build/" PARENT_SCOPE)
-set(AOT_LIBRARY "${PROJECT_DIR}/build/windows/app.so" PARENT_SCOPE)
 
 list(APPEND FLUTTER_LIBRARY_HEADERS
   "flutter_export.h"
