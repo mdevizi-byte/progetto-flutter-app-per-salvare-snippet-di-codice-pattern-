@@ -66,7 +66,7 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Errore Google signin: $e');
-      return null;
+      rethrow;
     }
   }
 }

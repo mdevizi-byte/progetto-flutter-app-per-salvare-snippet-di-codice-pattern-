@@ -122,6 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   false)) {
                                 return;
                               }
+
+                              final navigator = Navigator.of(context);
+                              final messenger = ScaffoldMessenger.of(context);
                               setState(() {
                                 _isLoading = true;
                               });
@@ -137,10 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
 
                               if (user != null) {
-                                Navigator.pushReplacementNamed(
-                                    context, '/home');
+                                navigator.pushReplacementNamed('/home');
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   const SnackBar(
                                     content: Text(
                                         'Credenziali errate o errore di login.'),
@@ -184,8 +186,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextButton(
                       onPressed: () async {
                         final email = _emailController.text.trim();
+                        final messenger = ScaffoldMessenger.of(context);
                         if (email.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                                 content: Text(
                                     'Inserisci la tua email per resettare la password')),
@@ -196,14 +199,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             await AuthService().sendPasswordReset(email);
                         if (!mounted) return;
                         if (error != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text('Reset non inviato: $error'),
                             ),
                           );
                           return;
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           const SnackBar(
                               content: Text(
                                   'Email di reset inviata (se esistente).')),
@@ -217,18 +220,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: ElevatedButton.icon(
                     onPressed: () async {
+                      final navigator = Navigator.of(context);
+                      final messenger = ScaffoldMessenger.of(context);
                       setState(() => _isLoading = true);
-                      final user = await AuthService().signInWithGoogle();
-                      setState(() => _isLoading = false);
-                      if (user != null) {
+                      try {
+                        final user = await AuthService().signInWithGoogle();
                         if (!mounted) return;
-                        Navigator.pushReplacementNamed(context, '/home');
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Login con Google annullato o fallito.')),
+                        if (user != null) {
+                          navigator.pushReplacementNamed('/home');
+                        } else {
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Login con Google annullato.'),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (!mounted) return;
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Login Google fallito: $e'),
+                          ),
                         );
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
                       }
                     },
                     icon: const Icon(Icons.login),
