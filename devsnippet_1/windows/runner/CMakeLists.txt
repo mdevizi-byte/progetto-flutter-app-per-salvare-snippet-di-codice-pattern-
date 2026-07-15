@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+sdkmanager "platform-tools" "emulator" "platforms;android-27" "system-images;android-27;google_apis_playstore;x86"cmake_minimum_required(VERSION 3.14)
 project(runner LANGUAGES CXX)
 
 # Define the application target. To change its name, change BINARY_NAME in the
